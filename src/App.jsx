@@ -71,7 +71,7 @@ const GASTOS_INICIAIS = [
 // ── Utils ─────────────────────────────────────────────────────────
 const fmt = v => new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(v||0);
 const hoje = () => new Date().toISOString().split("T")[0];
-const mesAtual = () => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`; };
+const mesAtual = () => "2026-07";
 const labelMes = ym => { if(!ym)return""; const[y,m]=ym.split("-"); return `${MESES[+m-1]} ${y}`; };
 const labelMesCurto = ym => { if(!ym)return""; const[,m]=ym.split("-"); return MESES[+m-1].slice(0,3); };
 
@@ -171,9 +171,14 @@ function Dashboard({gastos,receitas,bancos,mesSelecionado,onMudaMes}){
   const porCat={};
   CATEGORIAS.forEach(c=>{porCat[c.nome]=0;});
   gastosMes.forEach(g=>{if(porCat[g.cat]!==undefined)porCat[g.cat]+=g.valor||0;});
-  const meses=[];
-  for(let i=5;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i);const ym=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;meses.push({value:ym,label:labelMes(ym)});}
-  for(let i=1;i<=2;i++){const d=new Date();d.setMonth(d.getMonth()+i);const ym=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;meses.push({value:ym,label:labelMes(ym)});}
+  const meses=[
+    {value:"2026-07",label:"Julho 2026"},
+    {value:"2026-08",label:"Agosto 2026"},
+    {value:"2026-09",label:"Setembro 2026"},
+    {value:"2026-10",label:"Outubro 2026"},
+    {value:"2026-11",label:"Novembro 2026"},
+    {value:"2026-12",label:"Dezembro 2026"},
+  ];
   const maxCat=Math.max(...Object.values(porCat),1);
   return(
     <div>
@@ -247,14 +252,20 @@ function Dashboard({gastos,receitas,bancos,mesSelecionado,onMudaMes}){
 
 // ── LANÇAMENTOS ───────────────────────────────────────────────────
 function Lancamentos({gastos,onSave,mesSelecionado}){
-  const [form,setForm]=useState({data:hoje(),desc:"",cat:"",valor:""});
+  const [form,setForm]=useState({data:hoje(),dataDisplay:"",desc:"",cat:"",valor:""});
   const [erro,setErro]=useState("");
   const [editId,setEditId]=useState(null);
-  const [filtroMes,setFiltroMes]=useState(mesSelecionado);
+  const [filtroMes,setFiltroMes]=useState("2026-07");
   const [confirmDel,setConfirmDel]=useState(null);
   const gastosFiltrados=gastos.filter(g=>g.data?.startsWith(filtroMes)).sort((a,b)=>b.data.localeCompare(a.data));
-  const meses=[];
-  for(let i=5;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i);const ym=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;meses.push({value:ym,label:labelMes(ym)});}
+  const meses=[
+    {value:"2026-07",label:"Julho 2026"},
+    {value:"2026-08",label:"Agosto 2026"},
+    {value:"2026-09",label:"Setembro 2026"},
+    {value:"2026-10",label:"Outubro 2026"},
+    {value:"2026-11",label:"Novembro 2026"},
+    {value:"2026-12",label:"Dezembro 2026"},
+  ];
   const salvar=()=>{
     if(!form.desc||!form.cat||!form.valor||!form.data){setErro("Preencha todos os campos.");return;}
     const val=parseFloat(String(form.valor).replace(",","."));
@@ -264,16 +275,16 @@ function Lancamentos({gastos,onSave,mesSelecionado}){
     else{onSave([...gastos,{...form,valor:val,id:Date.now()}]);}
     setForm({data:hoje(),desc:"",cat:"",valor:""});
   };
-  const editar=g=>{setForm({data:g.data,desc:g.desc,cat:g.cat,valor:String(g.valor)});setEditId(g.id);window.scrollTo({top:0,behavior:"smooth"});};
+  const editar=g=>{const p=g.data?.split("-");const dd=p?`${p[2]}/${p[1]}/${p[0]}`:"";setForm({data:g.data,dataDisplay:dd,desc:g.desc,cat:g.cat,valor:String(g.valor)});setEditId(g.id);window.scrollTo({top:0,behavior:"smooth"});};
   const excluir=id=>{onSave(gastos.filter(g=>g.id!==id));setConfirmDel(null);};
-  const cancelar=()=>{setForm({data:hoje(),desc:"",cat:"",valor:""});setEditId(null);setErro("");};
+  const cancelar=()=>{setForm({data:hoje(),dataDisplay:"",desc:"",cat:"",valor:""});setEditId(null);setErro("");};
   const totalMes=gastosFiltrados.reduce((s,g)=>s+(g.valor||0),0);
   const catOpts=CATEGORIAS.map(c=>({value:c.nome,label:`${c.emoji} ${c.nome}`}));
   return(
     <div>
       <Card style={{background:editId?C.goldLight:C.lilasPale,border:`2px solid ${editId?C.gold:C.lilasMid}`}}>
         <SectionTitle emoji={editId?"✏️":"➕"}>{editId?"Editar gasto":"Novo gasto"}</SectionTitle>
-        <Input label="Data" value={form.data} onChange={v=>setForm({...form,data:v})} type="date" required/>
+        <Input label="Data (DD/MM/AAAA)" value={form.dataDisplay||""} onChange={v=>{const clean=v.replace(/\D/g,"").slice(0,8);const fmt=clean.length>4?clean.slice(0,2)+"/"+clean.slice(2,4)+"/"+clean.slice(4):clean.length>2?clean.slice(0,2)+"/"+clean.slice(2):clean;const iso=clean.length===8?`${clean.slice(4)}-${clean.slice(2,4)}-${clean.slice(0,2)}`:form.data;setForm({...form,dataDisplay:fmt,data:iso});}} placeholder="30/07/2026" required/>
         <Input label="Descrição" value={form.desc} onChange={v=>setForm({...form,desc:v})} placeholder="Ex: Mercado, Remédio..." required/>
         <Select label="Categoria" value={form.cat} onChange={v=>setForm({...form,cat:v})} options={catOpts} required/>
         <Input label="Valor (R$)" value={form.valor} onChange={v=>setForm({...form,valor:v})} type="number" placeholder="0,00" required/>
@@ -339,8 +350,14 @@ function Receitas({receitas,onSave,mesSelecionado}){
     const r=receitas.find(r=>r.mes===mes)||{aposent1:"",aposent2:""};
     setForm({aposent1:r.aposent1||"",aposent2:r.aposent2||""});setSalvo(false);
   },[mes,receitas]);
-  const meses=[];
-  for(let i=5;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i);const ym=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;meses.push({value:ym,label:labelMes(ym)});}
+  const meses=[
+    {value:"2026-07",label:"Julho 2026"},
+    {value:"2026-08",label:"Agosto 2026"},
+    {value:"2026-09",label:"Setembro 2026"},
+    {value:"2026-10",label:"Outubro 2026"},
+    {value:"2026-11",label:"Novembro 2026"},
+    {value:"2026-12",label:"Dezembro 2026"},
+  ];
   const salvar=()=>{
     const v1=parseFloat(String(form.aposent1).replace(",","."))||0;
     const v2=parseFloat(String(form.aposent2).replace(",","."))||0;
