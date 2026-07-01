@@ -104,7 +104,7 @@ function Input({label,value,onChange,type="text",placeholder,required}){
     <div style={{marginBottom:14}}>
       <label style={{display:"block",fontSize:13,fontWeight:700,color:C.lilasDark,marginBottom:4}}>{label}{required&&<span style={{color:C.red}}> *</span>}</label>
       <input type={type} value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder}
-        style={{width:"100%",padding:"12px 14px",borderRadius:10,fontSize:16,border:`2px solid ${C.border}`,background:C.lilasBg,color:C.text,boxSizing:"border-box",outline:"none"}}/>
+        style={{width:"100%",maxWidth:"100%",padding:"12px 14px",borderRadius:10,fontSize:16,border:`2px solid ${C.border}`,background:C.lilasBg,color:C.text,boxSizing:"border-box",outline:"none",WebkitAppearance:"none",appearance:"none"}}/>
     </div>
   );
 }
