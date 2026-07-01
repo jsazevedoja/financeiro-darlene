@@ -44,29 +44,7 @@ const BANCOS = [
 const MESES = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
                "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 
-const GASTOS_INICIAIS = [
-  {id:1,data:"2026-04-30",desc:"Condomínio",cat:"Moradia",valor:230.00},
-  {id:2,data:"2026-04-30",desc:"Luz",cat:"Contas Fixas",valor:150.30},
-  {id:3,data:"2026-04-30",desc:"Água",cat:"Contas Fixas",valor:290.00},
-  {id:4,data:"2026-04-30",desc:"Academia - Pilates",cat:"Saúde",valor:300.00},
-  {id:5,data:"2026-04-30",desc:"Uber",cat:"Transporte",valor:230.00},
-  {id:6,data:"2026-04-30",desc:"Supera",cat:"Educação / Terapia",valor:400.00},
-  {id:7,data:"2026-04-30",desc:"Vânia - Diarista",cat:"Serviços Domésticos",valor:1500.00},
-  {id:8,data:"2026-04-30",desc:"Caixa Anair",cat:"Serviços Domésticos",valor:400.00},
-  {id:9,data:"2026-04-30",desc:"Celular",cat:"Contas Fixas",valor:72.00},
-  {id:10,data:"2026-04-30",desc:"Internet",cat:"Contas Fixas",valor:98.00},
-  {id:11,data:"2026-04-30",desc:"Gás",cat:"Contas Fixas",valor:320.00},
-  {id:12,data:"2026-04-30",desc:"Vânia Extra",cat:"Serviços Domésticos",valor:150.00},
-  {id:13,data:"2026-04-30",desc:"Júnior - Plano de Saúde",cat:"Cartão do Júnior",valor:320.00},
-  {id:14,data:"2026-04-30",desc:"Mercado",cat:"Alimentação",valor:1700.00},
-  {id:15,data:"2026-04-30",desc:"Unhas",cat:"Beleza / Bem-estar",valor:200.00},
-  {id:16,data:"2026-04-30",desc:"Verduras e Frutas",cat:"Alimentação",valor:320.00},
-  {id:17,data:"2026-04-30",desc:"Remédios",cat:"Saúde",valor:300.00},
-  {id:18,data:"2026-04-30",desc:"Alex",cat:"Outros",valor:350.00},
-  {id:19,data:"2026-04-30",desc:"Caixa Verde",cat:"Outros",valor:1000.00},
-  {id:20,data:"2026-04-30",desc:"Velas",cat:"Outros",valor:108.00},
-  {id:21,data:"2026-04-30",desc:"IR - Parcela 1/8",cat:"Impostos / IR",valor:1275.00},
-];
+const GASTOS_INICIAIS = [];
 
 // ── Utils ─────────────────────────────────────────────────────────
 const fmt = v => new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(v||0);
@@ -252,7 +230,7 @@ function Dashboard({gastos,receitas,bancos,mesSelecionado,onMudaMes}){
 
 // ── LANÇAMENTOS ───────────────────────────────────────────────────
 function Lancamentos({gastos,onSave,mesSelecionado}){
-  const [form,setForm]=useState({data:hoje(),dataDisplay:"",desc:"",cat:"",valor:""});
+  const [form,setForm]=useState({data:"2026-07-01",desc:"",cat:"",valor:""});
   const [erro,setErro]=useState("");
   const [editId,setEditId]=useState(null);
   const [filtroMes,setFiltroMes]=useState("2026-07");
@@ -275,16 +253,16 @@ function Lancamentos({gastos,onSave,mesSelecionado}){
     else{onSave([...gastos,{...form,valor:val,id:Date.now()}]);}
     setForm({data:hoje(),desc:"",cat:"",valor:""});
   };
-  const editar=g=>{const p=g.data?.split("-");const dd=p?`${p[2]}/${p[1]}/${p[0]}`:"";setForm({data:g.data,dataDisplay:dd,desc:g.desc,cat:g.cat,valor:String(g.valor)});setEditId(g.id);window.scrollTo({top:0,behavior:"smooth"});};
+  const editar=g=>{setForm({data:g.data,desc:g.desc,cat:g.cat,valor:String(g.valor)});setEditId(g.id);window.scrollTo({top:0,behavior:"smooth"});};
   const excluir=id=>{onSave(gastos.filter(g=>g.id!==id));setConfirmDel(null);};
-  const cancelar=()=>{setForm({data:hoje(),dataDisplay:"",desc:"",cat:"",valor:""});setEditId(null);setErro("");};
+  const cancelar=()=>{setForm({data:"2026-07-01",desc:"",cat:"",valor:""});setEditId(null);setErro("");};
   const totalMes=gastosFiltrados.reduce((s,g)=>s+(g.valor||0),0);
   const catOpts=CATEGORIAS.map(c=>({value:c.nome,label:`${c.emoji} ${c.nome}`}));
   return(
     <div>
       <Card style={{background:editId?C.goldLight:C.lilasPale,border:`2px solid ${editId?C.gold:C.lilasMid}`}}>
         <SectionTitle emoji={editId?"✏️":"➕"}>{editId?"Editar gasto":"Novo gasto"}</SectionTitle>
-        <Input label="Data (DD/MM/AAAA)" value={form.dataDisplay||""} onChange={v=>{const clean=v.replace(/\D/g,"").slice(0,8);const fmt=clean.length>4?clean.slice(0,2)+"/"+clean.slice(2,4)+"/"+clean.slice(4):clean.length>2?clean.slice(0,2)+"/"+clean.slice(2):clean;const iso=clean.length===8?`${clean.slice(4)}-${clean.slice(2,4)}-${clean.slice(0,2)}`:form.data;setForm({...form,dataDisplay:fmt,data:iso});}} placeholder="30/07/2026" required/>
+        <Input label="Data" value={form.data} onChange={v=>setForm({...form,data:v})} type="date" required/>
         <Input label="Descrição" value={form.desc} onChange={v=>setForm({...form,desc:v})} placeholder="Ex: Mercado, Remédio..." required/>
         <Select label="Categoria" value={form.cat} onChange={v=>setForm({...form,cat:v})} options={catOpts} required/>
         <Input label="Valor (R$)" value={form.valor} onChange={v=>setForm({...form,valor:v})} type="number" placeholder="0,00" required/>
