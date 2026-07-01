@@ -528,7 +528,7 @@ export default function App(){
   ];
 
   return(
-    <div style={{maxWidth:430,margin:"0 auto",minHeight:"100vh",background:C.lilasBg,fontFamily:"system-ui,-apple-system,sans-serif",color:C.text,paddingBottom:90}}>
+    <div style={{maxWidth:430,margin:"0 auto",minHeight:"100vh",background:C.lilasBg,fontFamily:"system-ui,-apple-system,sans-serif",color:C.text,paddingBottom:"calc(90px + env(safe-area-inset-bottom))"}}>
       <div style={{background:`linear-gradient(135deg,${C.lilasDark} 0%,${C.lilasMid} 100%)`,padding:"20px 20px 16px",position:"sticky",top:0,zIndex:10,boxShadow:"0 2px 12px rgba(91,63,138,0.25)"}}>
         <div style={{fontSize:22,fontWeight:900,color:C.white,letterSpacing:-0.5}}>💜 Meu Financeiro</div>
         <div style={{fontSize:13,color:C.lilasLight,marginTop:2}}>
@@ -544,7 +544,7 @@ export default function App(){
           {tela==="anual"      &&<ResumoAnual gastos={gastos} receitas={receitas}/>}
         </>}
       </div>
-      <div style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:430,background:C.white,borderTop:`2px solid ${C.border}`,display:"grid",gridTemplateColumns:"repeat(5,1fr)",boxShadow:"0 -2px 16px rgba(91,63,138,0.12)"}}>
+      <div style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:430,background:C.white,borderTop:`2px solid ${C.border}`,display:"grid",gridTemplateColumns:"repeat(5,1fr)",boxShadow:"0 -2px 16px rgba(91,63,138,0.12)",paddingBottom:"env(safe-area-inset-bottom)"}}>
         {tabs.map(t=>(
           <button key={t.id} onClick={()=>setTela(t.id)} style={{background:tela===t.id?C.lilasPale:"transparent",border:"none",cursor:"pointer",padding:"8px 0",borderTop:tela===t.id?`3px solid ${C.lilasMid}`:"3px solid transparent"}}>
             <div style={{fontSize:20}}>{t.emoji}</div>
