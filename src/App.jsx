@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react";
 import { initializeApp } from "firebase/app";
 import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
-
+import { getAuth, signInAnonymously } from "firebase/auth";
 // ── Firebase config ───────────────────────────────────────────────
 const firebaseConfig = {
   apiKey: "AIzaSyDgkNfvvrWJNIVwDoGyxw_VFLk7M28NnCw",
@@ -17,6 +17,7 @@ const firebaseConfig = {
 
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
+const auth = getAuth(firebaseApp);
 
 // ── Cores ─────────────────────────────────────────────────────────
 const C = {
@@ -512,7 +513,10 @@ function ResumoAnual({gastos,receitas}){
 // ── APP PRINCIPAL ─────────────────────────────────────────────────
 export default function App(){
   const [tela,setTela]=useState("dashboard");
-  const [mes,setMes]=useState(mesAtual);
+  const [mes,setMes]=useState(mesAtual); 
+  useEffect(() => {
+    signInAnonymously(auth);
+  }, []);
   const [gastos,setGastos,carregandoGastos]=useFirestore("gastos",GASTOS_INICIAIS);
   const [receitas,setReceitas,carregandoReceitas]=useFirestore("receitas",[]);
   const [bancos,setBancos,carregandoBancos]=useFirestore("bancos",{});
